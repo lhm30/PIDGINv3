@@ -1,0 +1,120 @@
+Prediction IncluDinG INactivity (PIDGIN) Version 3
+========================================
+
+|License|
+
+Author : Lewis Mervin, lhm30@cam.ac.uk
+
+Supervisor : Dr. A. Bender
+
+Protein target prediction using `Random Forests`_ (RFs) trained on bioactivity data from PubChem_ (extracted 07/06/18) and ChEMBL_ (version 24), using the RDKit_ and Scikit-learn_, which employ a modification of the reliability-density neighbourhood Applicability Domain (AD) analysis by Aniceto [1]_. This project is the sucessor to PIDGIN `version 1`_ [2]_ and PIDGIN `version 2`_ [3]_.
+
+* Molecular Descriptors : `2048bit Rdkit Extended Connectivity FingerPrints`_ (ECFP) [4]_
+* Algorithm: `Random Forests`_ with dynamic number of trees (see docs for details), class weight = 'balanced', sample weight = ratio Inactive:Active
+* Models generated at four different cut-off's: 100μM, 10μM, 1μM and 0.1μM
+* Models generated both with and without mapping to orthologues
+* Pathway information from `NCBI BioSystems`_ 
+* Disease information from `DisGeNET`_
+
+Details for sizes across all activity cut-off's:
+
++------------------------------------------------+-------------------------+---------------------------+
+|                                                | Without orthologues     | With orthologues          |
++================================================+=========================+===========================+
+| Distinct Models                                | 10,446                  | 14,678                    |
++------------------------------------------------+-------------------------+---------------------------+
+| Distinct Targets [exhaustive total]            | 7,075 [7,075]           | 16,623 [60,437]           |
++------------------------------------------------+-------------------------+---------------------------+
+| Total Bioactivities Over all models            | 39,424,168              | 398,340,769               |
++------------------------------------------------+-------------------------+---------------------------+
+| Actives                                        | 3,204,038               | 35,009,629                |
++------------------------------------------------+-------------------------+---------------------------+
+| Inactives [Of which are Sphere Exclusion (SE)] | 36,220,130 [27,435,133] | 363,331,140 [248,782,698] |
++------------------------------------------------+-------------------------+---------------------------+
+
+Full details on all models are provided in the uniprot_information.txt files in the orthologue and no_orthologue directories
+
+INSTRUCTIONS
+==========================================================================================
+
+Development and documentation occurs on GitHub_.
+
+Install with Conda
+----------------------
+
+Follow these steps on Linux/OSX:
+
+1. ``Download and install Anaconda2 for Python 2.7 from https://www.continuum.io/downloads``
+
+2. Open terminal in Mac/Linux and run ``conda create -c keiserlab -c rdkit -c sdaxen --name pidgin3_env python=2.7 pip e3fp scikit-learn pydot graphviz``
+
+* N.B. Rdkit may not import on some systems due to a bug. If this happens upgrade to the latest version of conda before creating the above environment using: ``conda update conda``
+
+3. Now run: ``source activate pidgin3_env`` (This activates the PIDGINv3 virtual environment. N.B This is required for each new terminal session in order to run PIDGIN in the future)
+
+4. Now run: ``pip install standaridser`` [Installs the IMI eTOX `flatkinson standardiser`_ (replaces ChemAxon's standardizer used in previous PIDGIN versions)]
+
+5. Navigate the directory you wish to install PIDGINv3 and in Mac/Linux terminal run ``git clone https://github.com/lhm30/PIDGINv3/`` (recommended) or download/extract the zip from `GitHub`_ webpage (not recommended due to inability to pull updates)
+
+6. Download and unzip `no_ortho.zip`_ into the PIDGINv3 main directory from `https://tinyurl.com/no-ortho`_ (leave all files within data compressed)
+
+* N.B Depending on bandwidth, Step 6 may take some time
+
+
+IMPORTANT
+==========================================================================================
+
+*	You MUST download the models before running!
+*	The program recognises as input line-separated SMILES in either .smi/.smiles or .sdf format
+*	If the SMILES input contains data additional to the SMILES string, the first entries after the SMILES are automatically interpreted as identifiers (see the `OpenSMILES specification <http://opensmiles.org/opensmiles.html>`_ §4.5) - although there are options to change this behaviour
+*	Molecules are automatically  standardized when running models (can be turned off)
+*	Do not modify the 'pkls', 'ad_data' etc. names or directories
+*	cytotox_library.csv and nontoxic_background.csv are included for testing purposes
+*	For installation and usage instructions, see the `documentation <http://pidginv3.readthedocs.io>`_.
+
+
+License
+-------
+
+PIDGINv3 is available under the `GNU General Public License v3.0
+<https://www.gnu.org/licenses/gpl.html>`_ (GPLv3).
+
+
+References
+----------
+
+.. [1] |aniceto|
+.. [2] |mervin2015|
+.. [3] |mervin2018|
+.. [4] |rogers|
+
+
+.. _Random Forests: http://scikit-learn.org/0.19/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+.. _PubChem: https://pubchem.ncbi.nlm.nih.gov/
+.. _ChEMBL: https://www.ebi.ac.uk/chembl/
+.. _RDKit: http://www.rdkit.org
+.. _Scikit-learn: http://scikit-learn.org/
+.. _version 1: https://github.com/lhm30/PIDGIN
+.. _version 2: https://github.com/lhm30/PIDGINv2
+.. _no_ortho.zip : https://tinyurl.com/no-ortho
+.. _https://tinyurl.com/no-ortho : https://tinyurl.com/no-ortho
+.. _2048bit Rdkit Extended Connectivity FingerPrints: http://www.rdkit.org/docs/GettingStartedInPython.html#morgan-fingerprints-circular-fingerprints
+.. _NCBI BioSystems: https://www.ncbi.nlm.nih.gov/Structure/biosystems/docs/biosystems_about.html
+.. _DisGeNET: http://www.disgenet.org/web/DisGeNET/menu/dbinfo
+.. |aniceto| replace:: Aniceto, N, et al. A novel applicability domain technique for mapping predictive reliability across the chemical space of a QSAR: Reliability-density neighbourhood. *J. Cheminform.* **8**: 69 (2016). |aniceto_doi|
+.. |aniceto_doi| image:: https://img.shields.io/badge/doi-10.1186%2Fs13321--016--0182--y-blue.svg
+    :target: https://doi.org/10.1186/s13321-016-0182-y
+.. |mervin2015| replace:: Mervin, L H., et al. Target prediction utilising negative bioactivity data covering large chemical space. *J. Cheminform.* **7**: 51 (2015). |mervin2015_doi|
+.. |mervin2015_doi| image:: https://img.shields.io/badge/doi-10.1186%2Fs13321--015--0098--y-blue.svg
+    :target: https://doi.org/10.1186/s13321-015-0098-y
+.. |mervin2018| replace:: Mervin, L H., et al. Orthologue chemical space and its influence on target prediction. *Bioinformatics.* **34**: 72–79 (2018). |mervin2018_doi|
+.. |mervin2018_doi| image:: https://img.shields.io/badge/doi-10.1093%2Fbioinformatics%2Fbtx525-blue.svg
+    :target: https://doi.org/10.1093/bioinformatics/btx525
+.. |rogers| replace:: Rogers D & Hahn M. Extended-connectivity fingerprints. *J. Chem. Inf. Model.* **50**: 742-54 (2010). |rogers_doi|
+.. |rogers_doi| image:: https://img.shields.io/badge/doi-10.1021/ci100050t-blue.svg
+    :target: http://dx.doi.org/10.1021/ci100050t
+.. _GitHub: https://github.com/lhm30/PIDGINv3
+.. _flatkinson standardiser: https://github.com/flatkinson/standardiser
+.. _models.zip: 
+.. |license| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
+   :target: https://github.com/lhm30/PIDGINv3/blob/master/LICENSE.txt
