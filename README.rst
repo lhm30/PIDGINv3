@@ -37,7 +37,8 @@ Full details on all models are provided in the uniprot_information.txt files in 
 INSTRUCTIONS
 ==========================================================================================
 
-Development and documentation occurs on GitHub_.
+Development occurs on GitHub_.
+Documentation, installation and instructions occur on ReadtheDocs_.
 
 Install with Conda
 ----------------------
@@ -114,6 +115,7 @@ References
 .. |rogers_doi| image:: https://img.shields.io/badge/doi-10.1021/ci100050t-blue.svg
     :target: http://dx.doi.org/10.1021/ci100050t
 .. _GitHub: https://github.com/lhm30/PIDGINv3
+.. _Readthedocs: https://pidginv3.readthedocs.io/en/latest/
 .. _flatkinson standardiser: https://github.com/flatkinson/standardiser
 .. _models.zip: 
 .. |license| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
