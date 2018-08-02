@@ -1,7 +1,7 @@
 Prediction IncluDinG INactivity (PIDGIN) Version 3
 ========================================
 
-|License|
+|License| |docstatus| |betarelease|
 
 Author : Lewis Mervin, lhm30@cam.ac.uk
 
@@ -120,3 +120,8 @@ References
 .. _models.zip: 
 .. |license| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
    :target: https://github.com/lhm30/PIDGINv3/blob/master/LICENSE.txt
+.. |docstatus| image:: https://readthedocs.org/projects/pidginv3/badge/?version=latest
+   :target: https://pidginv3.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+.. |betarelease| image:: https://zenodo.org/badge/142870938.svg
+   :target: https://zenodo.org/badge/latestdoi/142870938
