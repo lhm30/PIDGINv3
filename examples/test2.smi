@@ -1,0 +1,10 @@
+Input1,CCCCOc1ccc2c3ccnc(\C=C\c4ccc(OC)cc4)c3n(CCCc5ccccc5)c2c1
+Input2,COc1ccc(\C=C\c2nccc3c4ccccc4n(CCCc5ccccc5)c23)cc1
+Input3,CCCCn1c2ccccc2c3ccnc(\C=C\c4ccc(OC)cc4)c13
+Input4,COc1cc(\C=C\c2nccc3c4ccccc4[nH]c23)cc(OC)c1OC
+Input5,COc1ccc(\C=C\c2c3c(cc[n+]2Cc4ccccc4)c5ccccc5n3CCCc6ccccc6)cc1
+Input6,CCCCn1c2ccccc2c3ccnc(C)c13
+Input7,Cc1nccc2c3ccccc3n(CCCc4ccccc4)c12
+Input8,COc1ccc(\C=C\c2nccc3c4ccccc4[nH]c23)cc1
+Input9,C(=C\c1nccc2c3ccccc3[nH]c12)/c4ccccc4
+Input10,Cc1nccc2c3ccccc3[nH]c12
