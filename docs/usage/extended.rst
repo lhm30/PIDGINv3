@@ -33,7 +33,7 @@ trees in the forests across the filtered targets:
 
 .. code-block:: shell-session
 
-	$ python $PV3/predict.py -f test.smi --ntrees 250 --target_class Ligase -b 0.1
+	$ python $PV3/predict.py -f test.smi --ntrees 250 --target_class Ligase --std_dev
 
 .. note::
 	The max number of trees when generating the models was set to 250. An algorithm to

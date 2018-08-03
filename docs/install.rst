@@ -30,7 +30,7 @@ Follow these steps on Linux/OSX:
 
 3. Now run: ``source activate pidgin3_env`` (This activates the PIDGINv3 virtual environment. N.B This is required for each new terminal session in order to run PIDGIN in the future)
 
-4. Now run: ``pip install standaridser`` [Installs the IMI eTOX `flatkinson standardiser`_ (replaces ChemAxon's standardizer used in previous PIDGIN versions)]
+4. Now run: ``pip install standardiser`` [Installs the IMI eTOX `flatkinson standardiser`_ (replaces ChemAxon's standardizer used in previous PIDGIN versions)]
 
 5. Navigate the directory you wish to install PIDGINv3 and in Mac/Linux terminal run ``git clone https://github.com/lhm30/PIDGINv3/`` (recommended) or download/extract the zip from `GitHub`_ webpage (not recommended due to inability to pull updates)
 

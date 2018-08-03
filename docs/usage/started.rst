@@ -43,7 +43,7 @@ compared to inactive):
 The threshold can be increased to increase the confidence in the prediction.
 
 .. note::
-	These probabilities are different from PIDGINv2 in that they have not been
+	These probabilities are different from PIDGIN `version 2`_ in that they have not been
 	Platt-scaled, since this increased the number of false positives.
 
 Decreasing applicability domain (AD) filter
@@ -106,7 +106,7 @@ Additional criteria can be added, for instance:
 
 .. code-block:: shell-session
 
-	$ python $PV3/predict.py -f test.smi --organism "Rattus" -b 0.1,1 -p 0.5 --min_size 50 --se_filter l50po,bedroc,0.8
+	$ python $PV3/predict.py -f test.smi --organism "Rattus" -b 0.1,1 -p 0.5 --min_size 50 --se_filter --performance_filter l50po,bedroc,0.8
 	
 would filter rat models that did not require Sphere Exclusion (SE) (i.e. sufficient number
 of inactives available) and a minimum number of 50 actives in the training set, with a
@@ -115,3 +115,4 @@ data out over 4-fold cross validation (L50PO) to produce a binary matrix of pred
 at a probability cut-off of 0.5 and for models trained with bioactivity data at a
 threshold of 0.1 & 1.0 um.
 
+.. include:: ../substitutions.rst

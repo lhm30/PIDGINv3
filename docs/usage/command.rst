@@ -134,8 +134,8 @@ Applicability domain threshold (--ad / --percentile)
 PIDGINv3 applies the reliability-density neighbourhood Applicability Domain (AD) analysis 
 by Aniceto et al., from: doi.org/10.1186/s13321-016-0182-y.
 
-In this procedure, three parameters are calculated per-compound basis across the training 
-data for each of the target models. 1.) The nearest-neighbour similarity (``sim``)
+In this procedure, three parameters are calculated on a per-compound basis across the 
+training data for each target model. 1.) The nearest-neighbour similarity (``sim``)
 [the largest Tanimoto Coefficient (Tc) similarity] to all data points for the target 
 model 2.) The RF probability of activity for the true label of the training compound (i.e. 
 the probability of being active for an active compound or the inactivity prediction for an
@@ -148,23 +148,28 @@ compound instance using the following equation:
     .. note::
         w = sim / (bias * std_dev)
 
+Reliability increases with the increase of ``w``, whereby higher reliability is associated
+with higher similarity and low ``bias * std_dev``. In practice, this procedure penalizes
+high similarity which is associated with poor bias and precision observed in the trained
+model.
+
 At run time, the user specifies the cut-off for applicability domain (AD) percentile (n)
 required for input compounds, using the following command:
 
 	* ``--ad``
 
 where ``int`` or (n) is a number between 0-100. In this case, the corresponding threshold 
-encapsulating n% of the pre-computed weights is calculated. Weights are next calculated on 
-a per-input compound basis by calculating the nearest neighbour similarity to the training 
-set and identifying the corresponding (pre-computed) training compound bias and 
-std_deviation for the near neighbour. The corresponding percentile value for the input 
-compound is calculated in the same manner as above. A percentile value for the input 
-compound above the user-specified  percentile threshold means the compound is considered 
-within the applicability domain  given the user-specified conditions, and the 
-corresponding probability of activity  [p(activity)] (or the binary prediction, if 
-specified) is written in the prediction  matrix. Conversely, a weight below the percentile 
-means an input compound is outside the  AD, and in this case an ``NaN`` (not available) is 
-added to the output matrix.
+encapsulating n% of the pre-computed weights is calculated (i.e. n-th percentile of ``w``
+values). Weights are next calculated on a per-input compound basis by calculating the
+nearest neighbour similarity to the training set and identifying the corresponding
+(pre-computed) training compound bias and std_deviation for the near neighbour. The 
+corresponding percentile value for the input compound is calculated in the same manner as
+above. A percentile value for the input compound above the user-specified  percentile 
+threshold means the compound is considered within the applicability domain  given the
+user-specified conditions, and the corresponding probability of activity  [p(activity)]
+(or the binary prediction, if specified) is written in the prediction  matrix. Conversely,
+a weight below the percentile means an input compound is outside the  AD, and in this case
+an ``NaN`` (not available) is added to the output matrix.
 
     .. note::
         Higher confidence in the applicability domain (larger n) will increase
@@ -182,7 +187,7 @@ If a user would like to obtain a matrix comprising the percentile weights for ea
 input compounds, then the command line argument ``--percentile`` can be used.
 
 
-Annotating known activity in ChEMBL or PubChem(--known_flag)
+Annotating known activity in ChEMBL or PubChem (--known_flag)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Known actives from ChEMBL and the inactives used from PubChem (possibly only a subset due 
