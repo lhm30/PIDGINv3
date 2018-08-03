@@ -36,17 +36,17 @@ Contributing
 ------------
 
 Development occurs on GitHub_.
-Contributions, feature requests, and bug reports are greatly appreciated.
-Please consult the `issue tracker`_.
+Documentation on Readthedocs_.
+Contributions, feature requests, and bug reports are welcome.
+Consult the `issue tracker`_.
 
 License
 -------
 PIDGINv3 is released under the |license_long| (|license|).
 
 Broadly, this means PIDGINv3 can be used in any manner without modification,
-with proper attribution. However, modification of any source code is modified for
-a new application must also be released under |license| so that
-the community may benefit.
+with proper attribution. Modification of source code must also be released 
+under |license| so that the community may benefit.
 
 Citing PIDGIN
 -------------
