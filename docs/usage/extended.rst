@@ -11,7 +11,7 @@ The input file named ``test.smi`` is used for these examples
 Generating transposed predictions
 ---------------------------------
 
-The following code will output the RF probabilities at 10um for all human targets to a
+The following code will output the RF probabilities at 10μM for all human targets to a
 transposed file:
 
 
@@ -26,7 +26,7 @@ and the columns are targets.
 Increasing trees and getting the standard dev. for input compounds
 ------------------------------------------------------------------
 
-The following snippet will increase the minimum number of RF trees to 250 for all 0.1um
+The following snippet will increase the minimum number of RF trees to 250 for all 0.1μM
 ligase targets and then calculate the standard deviation of the predictions across the 250
 trees in the forests across the filtered targets:
 
@@ -56,7 +56,7 @@ this functionality use the following snippet:
 
 	$ python $PV3/predict.py -f test.smi --organism Drosophila -b 100 --known_flag
 	
-which would provide predictions for all Drosophila targets with a 100um cut-off, and would
+which would provide predictions for all Drosophila targets with a 100μM cut-off, and would
 calculate overlap between input compounds and the training set and annotate these instead
 of providing predictions.
 

@@ -128,6 +128,10 @@ The continuous probabilities from each model [p(activity)] for input compounds c
 converted into binary predictions at a user-specified threshold. The choice of required
 p(activity) indicates a degree of confidence in predictions when binarizing probabilities.
 
+.. note::
+	These probabilities are different from PIDGIN `version 2`_ in that they have not been
+	Platt-scaled, since this increased the number of false positives.
+
 Applicability domain threshold (--ad / --percentile)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

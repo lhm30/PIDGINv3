@@ -12,7 +12,7 @@ directory, which containins two molecules whose SMILES strings are defined as:
 .. literalinclude:: ../../examples/test.smi
    :caption: test.smi
 
-The following code will generate the RF probabilities at 1um for all human targets for
+The following code will generate the RF probabilities at 1μM for all human targets for
 the input file:
 
 
@@ -31,14 +31,13 @@ uses fuzzy matching, so ``--organism homo`` would also achieve a similar filtere
 Generating binary predictions
 -----------------------------
 
-The following code will generate binary predictions at 1um for all human targets for
-the input file, at a threshold of 0.5 (the compound was more often predicted active
-compared to inactive):
+The following code will generate binary predictions at 0.1 and 1μM for all human targets,
+at a threshold of 0.5 (the compound was more often predicted active compared to inactive):
 
 
 .. code-block:: shell-session
 
-	$ python $PV3/predict.py -f test.smi --organism "Homo sapiens" -b 1 -p 0.5
+	$ python $PV3/predict.py -f test.smi --organism "Homo sapiens" -b 0.1,1 -p 0.5
 
 The threshold can be increased to increase the confidence in the prediction.
 
@@ -113,6 +112,6 @@ of inactives available) and a minimum number of 50 actives in the training set, 
 minimum BEDROC performance of 0.8 during leave 50% of ChEMBL publications in the training
 data out over 4-fold cross validation (L50PO) to produce a binary matrix of predictions
 at a probability cut-off of 0.5 and for models trained with bioactivity data at a
-threshold of 0.1 & 1.0 um.
+threshold of 0.1 & 1.01μM.
 
 .. include:: ../substitutions.rst
