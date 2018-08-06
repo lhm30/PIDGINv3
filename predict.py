@@ -90,10 +90,10 @@ def check_set_working_env():
 		sys.exit()
 	pidgin_dir = os.path.dirname(os.path.abspath(__file__))
 	if options.ortho:
-		mod_dir = pidgin_dir + sep + 'data' + sep + 'ortho' + sep
+		mod_dir = pidgin_dir + sep + 'ortho' + sep
 		if not os.path.isdir(mod_dir):
 			print ' Orthologue Error [--orthologues]: Orthologues directory is not present. Please download from here: '
-	else: mod_dir = pidgin_dir + sep + 'data' + sep + 'no_ortho' + sep
+	else: mod_dir = pidgin_dir + sep + 'no_ortho' + sep
 	return input_extension, sep, pidgin_dir, mod_dir, ad_settings
 
 #filter models using user specification supplied via option parser
