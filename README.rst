@@ -38,34 +38,16 @@ INSTRUCTIONS
 ==========================================================================================
 
 Development occurs on GitHub_.
-Documentation, installation and instructions occur on ReadtheDocs_.
 
 Install with Conda
 ----------------------
 
-Follow these steps on Linux/OSX:
-
-1. ``Download and install Anaconda2 for Python 2.7 from https://www.continuum.io/downloads``
-
-2. Open terminal in Mac/Linux and run ``conda create -c keiserlab -c rdkit -c sdaxen --name pidgin3_env python=2.7 pip e3fp scikit-learn pydot graphviz``
-
-* N.B. Rdkit may not import on some systems due to a bug. If this happens upgrade to the latest version of conda before creating the above environment using: ``conda update conda``
-
-3. Now run: ``source activate pidgin3_env`` (This activates the PIDGINv3 virtual environment. N.B This is required for each new terminal session in order to run PIDGIN in the future)
-
-4. Now run: ``pip install standardiser`` [Installs the IMI eTOX `flatkinson standardiser`_ (replaces ChemAxon's standardizer used in previous PIDGIN versions)]
-
-5. Navigate the directory you wish to install PIDGINv3 and in Mac/Linux terminal run ``git clone https://github.com/lhm30/PIDGINv3/`` (recommended) or download/extract the zip from `GitHub`_ webpage (not recommended due to inability to pull updates)
-
-6. Download and unzip `no_ortho.zip`_ into the PIDGINv3 main directory from `https://tinyurl.com/no-ortho`_ (leave all files within data compressed)
-
-* N.B Depending on bandwidth, Step 6 may take some time
-
+Documentation, installation and instructions are on ReadtheDocs_.
 
 IMPORTANT
 ==========================================================================================
 
-*	You MUST download the models before running!
+*	Use the ReadtheDocs! You MUST download the models before running!
 *	The program recognises as input line-separated SMILES in either .smi/.smiles or .sdf format
 *	If the SMILES input contains data additional to the SMILES string, the first entries after the SMILES are automatically interpreted as identifiers (see the `OpenSMILES specification <http://opensmiles.org/opensmiles.html>`_ §4.5) - although there are options to change this behaviour
 *	Molecules are automatically  standardized when running models (can be turned off)
