@@ -24,7 +24,7 @@ Follow these steps on Linux/OSX:
 
 1. ``Download and install Anaconda2 for Python 2.7 from https://www.continuum.io/downloads``
 
-2. Open terminal in Mac/Linux and run ``conda create -c keiserlab -c rdkit -c sdaxen --name pidgin3_env python=2.7 pip e3fp scikit-learn=0.18 pydot graphviz``
+2. Open terminal in Mac/Linux and run ``conda create -c keiserlab -c rdkit -c sdaxen --name pidgin3_env python=2.7 pip e3fp scikit-learn=0.19 pydot graphviz``
 
 * N.B. Rdkit may not import on some systems due to a bug. If this happens upgrade to the latest version of conda before creating the above environment using: ``conda update conda``
 
