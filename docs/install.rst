@@ -24,7 +24,7 @@ Follow these steps on Linux/OSX:
 
 1. ``Download and install Anaconda2 for Python 2.7 from https://www.continuum.io/downloads``
 
-2. Open terminal in Mac/Linux and run ``conda create -c keiserlab -c rdkit -c sdaxen --name pidgin3_env python=2.7 pip e3fp scikit-learn pydot graphviz``
+2. Open terminal in Mac/Linux and run ``conda create -c keiserlab -c rdkit -c sdaxen --name pidgin3_env python=2.7 pip e3fp scikit-learn=0.18 pydot graphviz``
 
 * N.B. Rdkit may not import on some systems due to a bug. If this happens upgrade to the latest version of conda before creating the above environment using: ``conda update conda``
 
@@ -34,8 +34,53 @@ Follow these steps on Linux/OSX:
 
 5. Navigate the directory you wish to install PIDGINv3 and in Mac/Linux terminal run ``git clone https://github.com/lhm30/PIDGINv3/`` (recommended) or download/extract the zip from `GitHub`_ webpage (not recommended due to inability to pull updates)
 
-6. Download and unzip `no_ortho.zip`_ into the PIDGINv3 main directory from `https://tinyurl.com/no-ortho`_ (leave all files within data compressed)
+6. (10GB) Download and unzip `no_ortho.zip`_ (md5sum: af0fd520de846c3cddcaec74dad4241d) into the PIDGINv3 main directory from `https://tinyurl.com/no-ortho`_ (leave all subsequent files compressed)
 
-* N.B Depending on bandwidth, Step 6 may take some time
+7. (optional 24GB) Download both `ortho.zip`_ (md5sum: 8f4e4a76f1837613ec4a3dd501d55753) and `ortho.z01`_ (md5sum: 57d6d2a9002f7a8de7ac8e9e4108bf30) to the PIDGINv3 main directory and unzip `ortho.zip`_ (leave all subsequent files compressed)
+
+* N.B Depending on bandwidth, Step 6/7 may take some time
+
+Filetree structure
+~~~~~~~~~~~~~~~~~~
+
+Once the models are downloaded and the main zip uncompressed, you should find the 
+following filetree structure within the PIDGINv3 directory (located for this snippet at
+``$PV3``) if both the optional orthologs (ortho) and models without orthologs (no_ortho)
+files are used:
+
+.. code-block:: shell-session
+
+	$ python $PV3/tree -L 2
+	.
+	├── docs
+	│   ├── conf.py
+	│   ├── dev
+	│   ├── index.rst
+	│   ├── install.rst
+	│   ├── make.bat
+	│   ├── Makefile
+	│   ├── overview.rst
+	│   ├── substitutions.rst
+	│   └── usage
+	├── examples
+	│   ├── test2.smi
+	│   └── test.smi
+	├── LICENSE
+	├── no_ortho
+	│   ├── ad_analysis
+	│   ├── bioactivity_dataset
+	│   ├── pkls
+	│   ├── training_log.txt
+	│   ├── training_results
+	│   └── uniprot_information.txt
+	├── ortho
+	│   ├── ad_analysis
+	│   ├── bioactivity_dataset
+	│   ├── pkls
+	│   ├── training_log.txt
+	│   ├── training_results
+	│   └── uniprot_information.txt
+	├── predict.py
+	└── README.rst
 
 .. include:: substitutions.rst
