@@ -12,7 +12,7 @@ Protein target prediction using `Random Forests`_ (RFs) trained on bioactivity d
 * Molecular Descriptors : `2048bit Rdkit Extended Connectivity FingerPrints`_ (ECFP) [4]_
 * Algorithm: `Random Forests`_ with dynamic number of trees (see docs for details), class weight = 'balanced', sample weight = ratio Inactive:Active
 * Models generated at four different cut-off's: 100μM, 10μM, 1μM and 0.1μM
-* Models generated both with and without mapping to orthologues
+* Models generated both with and without mapping to orthologues, as implemented in [3]_
 * Pathway information from `NCBI BioSystems`_ 
 * Disease information from `DisGeNET`_
 
