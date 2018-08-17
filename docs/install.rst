@@ -36,9 +36,11 @@ Follow these steps on Linux/OSX:
 
 6. (10GB) Download and unzip `no_ortho.zip`_ (md5sum: af0fd520de846c3cddcaec74dad4241d) into the PIDGINv3 main directory from `https://tinyurl.com/no-ortho`_ (leave all subsequent files compressed)
 
-7. (optional 24GB) Download both `ortho.zip`_ (md5sum: 8f4e4a76f1837613ec4a3dd501d55753) and `ortho.z01`_ (md5sum: 57d6d2a9002f7a8de7ac8e9e4108bf30) to the PIDGINv3 main directory and unzip `ortho.zip`_ (leave all subsequent files compressed)
+7. (optional 24GB) Models are also available when mapping data between orthologues, as in [1]_. N.B The files are 24GB and many models are based solely on orthologue data. To include this functionality, download both `ortho.zip`_ (md5sum: 8f4e4a76f1837613ec4a3dd501d55753) and `ortho.z01`_ (md5sum: 57d6d2a9002f7a8de7ac8e9e4108bf30) to the PIDGINv3 main directory and unzip `ortho.zip`_ (leave all subsequent files compressed)
 
 * N.B Depending on bandwidth, Step 6/7 may take some time
+
+.. [1] |mervin2018|
 
 Filetree structure
 ~~~~~~~~~~~~~~~~~~
@@ -50,7 +52,7 @@ files are used:
 
 .. code-block:: shell-session
 
-	$ python $PV3/tree -L 2
+	$PV3 tree -L 2
 	.
 	├── docs
 	│   ├── conf.py
