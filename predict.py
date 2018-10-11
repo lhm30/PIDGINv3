@@ -294,16 +294,30 @@ def doSimilarityWeightedAdAnalysis(model_name):
 	return ad_idx, np.array(known)
 
 #return percentile AD analysis for [similarity/(bias * std_dev] vs training data
+# def doPercentileSimilarityWeightedAdAnalysis(model_name):
+# 	global rdkit_mols,ad_settings
+# 	ret = []
+# 	ad_data = getAdData(model_name)
+# 	for mol_idx, m in enumerate(rdkit_mols):
+# 		percentiles = []
+# 		for training_instance in ad_data:
+# 			sim = DataStructs.TanimotoSimilarity(m,training_instance[0])
+# 			weight = sim/(training_instance[2]*training_instance[3])
+# 			percentiles.append(percentileofscore(ad_data[:,5],weight))
+# 		ret.append(max(percentiles))
+# 	return ret
+	
+#return percentile AD analysis for [similarity/(bias * std_dev] vs training data
 def doPercentileSimilarityWeightedAdAnalysis(model_name):
 	global rdkit_mols,ad_settings
 	ret = []
 	ad_data = getAdData(model_name)
 	for mol_idx, m in enumerate(rdkit_mols):
 		percentiles = []
-		for training_instance in ad_data:
-			sim = DataStructs.TanimotoSimilarity(m,training_instance[0])
-			weight = sim/(training_instance[2]*training_instance[3])
-			percentiles.append(percentileofscore(ad_data[:,5],weight))
+		sims = DataStructs.BulkTanimotoSimilarity(m,ad_data[:,0])
+		weights = sims / (ad_data[:,2] * ad_data[:,3])
+		for w in weights:
+			percentiles.append(percentileofscore(ad_data[:,5],w))
 		ret.append(max(percentiles))
 	return ret
 
@@ -318,26 +332,29 @@ def getStdDev(clf, querymatrix):
 #raw or binary prediction worker
 def doTargetPrediction(model_name):
 	global ad_settings
-	if options.percentile: return model_name, doPercentileSimilarityWeightedAdAnalysis(model_name)
-	clf = open_Model(model_name)
-	ret = np.zeros(len(querymatrix))
-	ret.fill(np.nan)
-	#percentile ad analysis calculated from [near_neighbor_similarity/(bias*deviation)]
 	try:
-		ad_idx, known = doSimilarityWeightedAdAnalysis(model_name)
-	except: return model_name, ret
-	#if no mols in AD then return
-	if len(ad_idx) == 0: return model_name, ret
-	probs = clf.predict_proba(querymatrix[ad_idx])[:,1].clip(0.001,0.999)
-	#return the standard deviation if turned on
-	if options.std:
-		std_dev = getStdDev(clf,querymatrix)
-		ret[ad_idx] = std_dev[ad_idx]
-		return model_name, ret
-	#will only have known if was set on
-	if len(known) > 0: probs[known[:,0]] = known[:,1]
-	if threshold: ret[ad_idx] = map(int,probs > threshold)
-	else: ret[ad_idx] = probs
+		#percentile ad analysis calculated from [near_neighbor_similarity/(bias*deviation)]
+		#Latency warning: exahustively searches for highest weighted compound across all training data
+		if options.percentile: return model_name, doPercentileSimilarityWeightedAdAnalysis(model_name)
+		clf = open_Model(model_name)
+		ret = np.zeros(len(querymatrix))
+		ret.fill(np.nan)
+		try:
+			ad_idx, known = doSimilarityWeightedAdAnalysis(model_name)
+		except: return model_name, ret
+		#if no mols in AD then return
+		if len(ad_idx) == 0: return model_name, ret
+		probs = clf.predict_proba(querymatrix[ad_idx])[:,1].clip(0.001,0.999)
+		#return the standard deviation if turned on
+		if options.std:
+			std_dev = getStdDev(clf,querymatrix)
+			ret[ad_idx] = std_dev[ad_idx]
+			return model_name, ret
+		#will only have known if was set on
+		if len(known) > 0: probs[known[:,0]] = known[:,1]
+		if threshold: ret[ad_idx] = map(int,probs > threshold)
+		else: ret[ad_idx] = probs
+	except IOError: return None
 	return model_name, ret
 
 #prediction runner for prediction or standard deviation calculation
@@ -349,7 +366,7 @@ def performTargetPrediction(models):
 		percent = (float(i)/float(len(models)))*100 + 1
 		sys.stdout.write(' Performing Classification on Query Molecules: %3d%%\r' % percent)
 		sys.stdout.flush()
-		if prediction_results is not None: prediction_results.append(result)
+		if result is not None: prediction_results.append(result)
 	pool.close()
 	pool.join()
 	return prediction_results
@@ -388,7 +405,7 @@ def writeOutTransposed(results):
 			out_data += [[uniprot_rows[0]] + list(preds)]
 	timestr = time.strftime("%Y%m%d-%H%M%S")
 	if not options.off: output_name = options.inf + '_out_predictions_' + timestr + '.txt'
-	else: output_name = options.off + 'lx -l_out_predictions_' + timestr + '.txt'
+	else: output_name = options.off + '_out_predictions_' + timestr + '.txt'
 	print ' Writing out transposed predictions to file: ' + output_name
 	out_file = open(output_name, 'w')
 	out_data = np.transpose(out_data)
