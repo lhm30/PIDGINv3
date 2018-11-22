@@ -204,9 +204,9 @@ def importQuerySmiles(in_file):
 	query = open(in_file).read().splitlines()
 	query = zip(range(len(query)),query)
 	matrix = np.empty((len(query), 2048), dtype=np.uint8)
-	smiles_per_core = int(math.ceil(len(query) / options.ncores)+1)
-	chunked_smiles = [query[x:x+smiles_per_core] for x in xrange(0, len(query), smiles_per_core)]
-	pool = Pool(processes=options.ncores)  # set up resources
+	num_chunks = min(len(query), options.ncores)
+	chunked_smiles = np.array_split(query, num_jobs)
+	pool = Pool(processes=num_chunks)  # set up resources
 	jobs = pool.imap(arrayFP, chunked_smiles)
 	current_end = 0
 	processed_mol = []
