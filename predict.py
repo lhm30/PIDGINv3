@@ -56,6 +56,7 @@ parser.add_option("--ntrees", dest="ntrees", default=None, type=int, help="Speci
 parser.add_option("--preprocess_off", dest="preproc", action="store_false", default=True, help="Turn off preprocessing using the flatkinson (eTox) standardizer (github.com/flatkinson/standardiser), size filter (100 >= Mw >= 1000 and organic mol check (C count >= 1)")
 parser.add_option("--std_dev", dest="std", action="store_true", default=False, help="Turn on matrix calculation for the standard deviation of prediction across the trees in the forest")
 parser.add_option("--percentile", dest="percentile", action="store_true", default=False, help="Turn on matrix calculation for the percentile of AD compounds")
+parser.add_option("--model_dir", dest="model_dir", default=None, type=str, help="Path to directory containing models, if not default")
 
 (options, args) = parser.parse_args()
 #if tab delimited then set to \t
@@ -88,7 +89,10 @@ def check_set_working_env():
 	except ValueError:
 		print ' Input Error [--ad]: Percentile weight not integer between 0-100%. Please Check parameters'
 		sys.exit()
-	pidgin_dir = os.path.dirname(os.path.abspath(__file__))
+        if options.model_dir:
+		pidgin_dir = options.model_dir
+	else:
+		pidgin_dir = os.path.dirname(os.path.abspath(__file__))
 	if options.ortho:
 		mod_dir = pidgin_dir + sep + 'ortho' + sep
 		if not os.path.isdir(mod_dir):
@@ -309,7 +313,7 @@ def doSimilarityWeightedAdAnalysis(model_name):
 	
 #return percentile AD analysis for [similarity/(bias * std_dev] vs training data
 def doPercentileSimilarityWeightedAdAnalysis(model_name):
-	global rdkit_mols,ad_settings
+	global rdkit_mols
 	ret = []
 	ad_data = getAdData(model_name)
 	for mol_idx, m in enumerate(rdkit_mols):
