@@ -219,7 +219,7 @@ def importQuerySmiles(in_file):
 	processed_id = []
 	for i, result in enumerate(jobs):
 		percent = (float(i)/float(num_chunks))*100 + 1
-		sys.stdout.write(' Processing Molecules: %3d%%\r' % percent)
+		sys.stdout.write(' Processing molecules: %3d%%\r' % percent)
 		sys.stdout.flush()
 		matrix[current_end:current_end+len(result[0]), :] = result[0]
 		current_end += len(result[0])
@@ -227,6 +227,7 @@ def importQuerySmiles(in_file):
 		processed_id += result[2]
 	pool.close()
 	pool.join()
+	sys.stdout.write(' Processing molecules: 100%')
 	print
 	return matrix[:current_end], processed_mol, processed_id
 
@@ -331,7 +332,7 @@ def doPercentileCalculation(model_name):
 
 #prediction runner for percentile calculation
 def performPercentileCalculation(models):
-	print " Starting percentile calculation"
+	print " Starting percentile calculation..."
 	input_len = len(models)
 	percentile_results = np.empty(input_len, dtype=object)
 	pool = Pool(processes=options.ncores)
@@ -346,7 +347,7 @@ def performPercentileCalculation(models):
 	pool.close()
 	pool.join()
 	sys.stdout.write(' Performing percentile calculation: ' + progress + ', 100%')
-	print "\n Percentile calculation completed"
+	print "\n Percentile calculation completed!"
 	return percentile_results
 
 #calculate standard deviation for an input compound
@@ -385,7 +386,7 @@ def doTargetPrediction(model_name):
 
 #prediction runner for prediction or standard deviation calculation
 def performTargetPrediction(models):
-	print " Starting classification"
+	print " Starting classification..."
 	input_len = len(models)
 	prediction_results = np.empty(input_len, dtype=object)
 	pool = Pool(processes=options.ncores, initializer=initPool, initargs=(querymatrix,options.proba,))
@@ -400,7 +401,7 @@ def performTargetPrediction(models):
 	pool.close()
 	pool.join()
 	sys.stdout.write(' Performing classification on query molecules: ' + progress + ', 100%')
-	print "\n Classification completed"
+	print "\n Classification completed!"
 	return prediction_results
 
 #write out normal results (rows are targets, columns are compounds)
