@@ -7,14 +7,15 @@
 
 ### predict.py ###
 #Output a matrix of probabilities [computed as the mean predicted class probabilities of
-#the trees in the forest (where the class probability of a single tree is the fraction of 
+#the trees in the forest (where the class probability of a single tree is the fraction of
 #samples of the same class in a leaf)], or user-specified Random probability thresholds to
-#produce binary predictions for an input list of smiles/sdfs. Predictions are generated 
+#produce binary predictions for an input list of smiles/sdfs. Predictions are generated
 #for the [filtered] models using a reliability-density neighbourhood Applicability Domain
 #(AD) analysis from: doi.org/10.1186/s13321-016-0182-y
 
 #libraries
 import os
+from os import path
 import sys
 import bz2
 import zipfile
@@ -31,6 +32,7 @@ from scipy.stats import percentileofscore
 import multiprocessing
 from multiprocessing import Pool
 from optparse import OptionParser
+import zipfile
 
 #optionparser options
 parser = OptionParser()
@@ -69,7 +71,7 @@ def introMessage():
 	print '==============================================================================================\n'
 	return
 
-#check smiles of sdf (if not quit)	
+#check smiles of sdf (if not quit)
 def check_Input():
 	global options
 	extension = options.inf.split('.')[-1]
@@ -107,7 +109,7 @@ def get_Models():
 	model_info = [l.split('\t') for l in open(mod_dir + 'training_log.txt').read().splitlines()]
 	if options.ntrees: model_info = [m[:2]+[str(options.ntrees)]+m[3:] if idx > 0 else m \
 	for idx, m in enumerate(model_info)]
-	model_info = {l[0] : l for l in model_info}	
+	model_info = {l[0] : l for l in model_info}
 	uniprot_info = [i.split('\t') for i in open(mod_dir + 'uniprot_information.txt').read().splitlines()[1:]]
 	mid_uniprots = dict()
 	if options.p_filt:
@@ -216,7 +218,7 @@ def importQuerySmiles(in_file):
 	processed_mol = []
 	processed_id = []
 	for i, result in enumerate(jobs):
-		percent = (float(i)/float(len(chunked_smiles)))*100 + 1
+		percent = (float(i)/float(num_chunks))*100 + 1
 		sys.stdout.write(' Processing Molecules: %3d%%\r' % percent)
 		sys.stdout.flush()
 		matrix[current_end:current_end+len(result[0]), :] = result[0]
@@ -227,7 +229,7 @@ def importQuerySmiles(in_file):
 	pool.join()
 	print
 	return matrix[:current_end], processed_mol, processed_id
-	
+
 #preprocess exception to catch
 class SdfNoneMolError(Exception):
     'raised due to "None" mol during enumeration through Chem.SDMolSupplier'
@@ -310,20 +312,42 @@ def doSimilarityWeightedAdAnalysis(model_name):
 # 			percentiles.append(percentileofscore(ad_data[:,5],weight))
 # 		ret.append(max(percentiles))
 # 	return ret
-	
+
 #return percentile AD analysis for [similarity/(bias * std_dev] vs training data
-def doPercentileSimilarityWeightedAdAnalysis(model_name):
+def doPercentileCalculation(model_name):
 	global rdkit_mols
-	ret = []
 	ad_data = getAdData(model_name)
-	for mol_idx, m in enumerate(rdkit_mols):
-		percentiles = []
-		sims = DataStructs.BulkTanimotoSimilarity(m,ad_data[:,0])
-		weights = sims / (ad_data[:,2] * ad_data[:,3])
-		for w in weights:
-			percentiles.append(percentileofscore(ad_data[:,5],w))
-		ret.append(max(percentiles))
-	return ret
+	def calcPercentile(rdkit_mol):
+		sims = DataStructs.BulkTanimotoSimilarity(rdkit_mol,ad_data[:,0])
+		bias = ad_data[:,2].astype(float)
+		std_dev = ad_data[:,3].astype(float)
+		scores = ad_data[:,5].astype(float)
+		weights = sims / (bias * std_dev)
+		critical_weight = weights.max()
+		percentile = percentileofscore(scores,critical_weight)
+		return percentile
+	ret = [calcPercentile(x) for x in rdkit_mols]
+	return model_name, ret
+
+#prediction runner for percentile calculation
+def performPercentileCalculation(models):
+	input_len = len(models)
+	percentile_results = np.empty(input_len, dtype=object)
+	pool = Pool(processes=options.ncores)
+	print " Starting percentile calculation"
+	chunksize = max(1, int(input_len / (10 * options.ncores)))
+	jobs = pool.imap_unordered(doPercentileCalculation, models, chunksize)
+	for i, result in enumerate(jobs):
+		progress = str(i+1) + '/' + str(input_len)
+		percent = '%3d%%\r' % (float(i)/float(input_len)*100 + 1)
+		sys.stdout.write(' Performing Percentile Calculation for Models: ' + progress + ', ' + percent)
+		sys.stdout.flush()
+		if result is not None: percentile_results[i] = result
+	pool.close()
+	pool.join()
+	sys.stdout.write(' Performing Percentile Calculation for Models: ' + progress + ', 100%')
+	print "\n Percentile calculation completed"
+	return percentile_results
 
 #calculate standard deviation for an input compound
 def getStdDev(clf, querymatrix):
@@ -338,8 +362,6 @@ def doTargetPrediction(model_name):
 	global ad_settings
 	try:
 		#percentile ad analysis calculated from [near_neighbor_similarity/(bias*deviation)]
-		#Latency warning: exahustively searches for highest weighted compound across all training data
-		if options.percentile: return model_name, doPercentileSimilarityWeightedAdAnalysis(model_name)
 		clf = open_Model(model_name)
 		ret = np.zeros(len(querymatrix))
 		ret.fill(np.nan)
@@ -418,7 +440,7 @@ def writeOutTransposed(results):
 	return
 
 #nt (Windows) compatibility initializer for the pool
-def initPool(querymatrix_, threshold_):
+def initPool(querymatrix_, threshold_=None):
 	global querymatrix, threshold
 	querymatrix = querymatrix_
 	threshold = threshold_
@@ -451,7 +473,10 @@ if __name__ == '__main__':
 	else:  querymatrix,rdkit_mols,query_id = importQuerySmiles(options.inf)
 	print ' Total number of query molecules : ' + str(len(querymatrix))
 	#perform target prediction on (filtered) models (using model ids)
-	prediction_results = performTargetPrediction(mid_uniprots.keys())
+	if options.percentile:
+		prediction_results = performPercentileCalculation(mid_uniprots.keys())
+	else:
+		prediction_results = performTargetPrediction(mid_uniprots.keys())
 	#write out
 	if options.transpose: writeOutTransposed(prediction_results)
 	else: writeOutResults(prediction_results)
