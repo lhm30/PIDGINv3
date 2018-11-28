@@ -331,21 +331,21 @@ def doPercentileCalculation(model_name):
 
 #prediction runner for percentile calculation
 def performPercentileCalculation(models):
+	print " Starting percentile calculation"
 	input_len = len(models)
 	percentile_results = np.empty(input_len, dtype=object)
 	pool = Pool(processes=options.ncores)
-	print " Starting percentile calculation"
 	chunksize = max(1, int(input_len / (10 * options.ncores)))
 	jobs = pool.imap_unordered(doPercentileCalculation, models, chunksize)
 	for i, result in enumerate(jobs):
 		progress = str(i+1) + '/' + str(input_len)
 		percent = '%3d%%\r' % (float(i)/float(input_len)*100 + 1)
-		sys.stdout.write(' Performing Percentile Calculation for Models: ' + progress + ', ' + percent)
+		sys.stdout.write(' Performing percentile calculation: ' + progress + ', ' + percent)
 		sys.stdout.flush()
 		if result is not None: percentile_results[i] = result
 	pool.close()
 	pool.join()
-	sys.stdout.write(' Performing Percentile Calculation for Models: ' + progress + ', 100%')
+	sys.stdout.write(' Performing percentile calculation: ' + progress + ', 100%')
 	print "\n Percentile calculation completed"
 	return percentile_results
 
@@ -385,16 +385,22 @@ def doTargetPrediction(model_name):
 
 #prediction runner for prediction or standard deviation calculation
 def performTargetPrediction(models):
-	prediction_results = []
+	print " Starting classification"
+	input_len = len(models)
+	prediction_results = np.empty(input_len, dtype=object)
 	pool = Pool(processes=options.ncores, initializer=initPool, initargs=(querymatrix,options.proba,))
-	jobs = pool.imap_unordered(doTargetPrediction, models)
+	chunksize = max(1, int(input_len / (10 * options.ncores)))
+	jobs = pool.imap_unordered(doTargetPrediction, models, chunksize)
 	for i, result in enumerate(jobs):
-		percent = (float(i)/float(len(models)))*100 + 1
-		sys.stdout.write(' Performing Classification on Query Molecules: %3d%%\r' % percent)
+		progress = str(i+1) + '/' + str(input_len)
+		percent = '%3d%%\r' % ((float(i)/float(input_len))*100 + 1)
+		sys.stdout.write(' Performing classification on query molecules: ' + progress + ', ' + percent)
 		sys.stdout.flush()
-		if result is not None: prediction_results.append(result)
+		if result is not None: prediction_results[i] = result
 	pool.close()
 	pool.join()
+	sys.stdout.write(' Performing classification on query molecules: ' + progress + ', 100%')
+	print "\n Classification completed"
 	return prediction_results
 
 #write out normal results (rows are targets, columns are compounds)
@@ -451,11 +457,11 @@ if __name__ == '__main__':
 	print ' Predicting Targets for input: ' + options.inf
 	print ' Using ' + str(options.ncores) + ' core(s)'
 	if options.ntrees: print 'Latency warning: Number of trees will be increased to minimum: ' + str(options.ntrees)
-	print ' Using bioactivity thresholds (IC50/EC50/Ki/Kd) of : ' + str(options.bioactivity)
+	print ' Using bioactivity thresholds (IC50/EC50/Ki/Kd) of: ' + str(options.bioactivity)
 	print ' Using orthologues: ' + str(options.ortho)
-	if options.organism: print ' Organism filter : ' + options.organism
-	if options.targetclass: print ' Target class filter : ' + options.targetclass
-	if options.minsize: print ' Minimum number of actives in training : ' + str(options.minsize)
+	if options.organism: print ' Organism filter: ' + options.organism
+	if options.targetclass: print ' Target class filter: ' + options.targetclass
+	if options.minsize: print ' Minimum number of actives in training: ' + str(options.minsize)
 	if options.se_filt: print ' Filtering out models with Sphere Exclusion (SE)'
 	if options.train_log: print ' Training log will be added to output'
 	#set up environment
@@ -467,11 +473,11 @@ if __name__ == '__main__':
 	print ' Total number of protein targets: ' + str(target_count)
 	print ' Total number of distinct models: ' + str(len(mid_uniprots))
 	print ' Using p(activity) threshold of: ' + str(options.proba)
-	print ' Importing query (calculating ECFP_4 finerprints)'
+	print ' Importing query (calculating ECFP_4 fingerprints)'
 	#import user query files
 	if input_extension == 'sdf': querymatrix,rdkit_mols,query_id = importQuerySDF(options.inf)
 	else:  querymatrix,rdkit_mols,query_id = importQuerySmiles(options.inf)
-	print ' Total number of query molecules : ' + str(len(querymatrix))
+	print ' Total number of query molecules: ' + str(len(querymatrix))
 	#perform target prediction on (filtered) models (using model ids)
 	if options.percentile:
 		prediction_results = performPercentileCalculation(mid_uniprots.keys())
