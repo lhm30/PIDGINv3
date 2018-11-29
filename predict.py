@@ -388,7 +388,7 @@ def doTargetPrediction(model_name):
 def performTargetPrediction(models):
 	print " Starting classification..."
 	input_len = len(models)
-	prediction_results = np.empty(input_len, dtype=object)
+	prediction_results = []
 	pool = Pool(processes=options.ncores, initializer=initPool, initargs=(querymatrix,options.proba,))
 	chunksize = max(1, int(input_len / (10 * options.ncores)))
 	jobs = pool.imap_unordered(doTargetPrediction, models, chunksize)
@@ -397,7 +397,7 @@ def performTargetPrediction(models):
 		percent = '%3d%%\r' % ((float(i)/float(input_len))*100 + 1)
 		sys.stdout.write(' Performing classification on query molecules: ' + progress + ', ' + percent)
 		sys.stdout.flush()
-		if result is not None: prediction_results[i] = result
+		if result is not None: prediction_results.append(result)
 	pool.close()
 	pool.join()
 	sys.stdout.write(' Performing classification on query molecules: ' + progress + ', 100%')
