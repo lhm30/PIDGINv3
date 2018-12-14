@@ -194,46 +194,50 @@ def calcFingerprints(input,qtype='smiles'):
 
 #calculate fingerprints for chunked array of smiles
 def arrayFP(inp):
-	outfp = []
-	outmol = []
-	outsmi_id = []
-	for idx, i in inp:
-		i = i.split(options.delim)
-		try:
-			fp, mol = calcFingerprints(i[options.smicol])
-			outfp.append(fp)
-			outmol.append(mol)
-			try: outsmi_id.append(i[options.idcol])
-			except IndexError: outsmi_id.append(i[options.smicol])
-		except PreprocessViolation: print ' SMILES preprocessing violation (line ' + str(idx+1) + ' will be removed): ' + i[options.smicol]
-		except MolFromSmilesError: print ' SMILES parse error (line ' + str(idx+1) + '): ' + i[options.smicol]
+	idx, i = inp
+	i = i.split(options.delim)
+	try:
+		fp, mol = calcFingerprints(i[options.smicol])
+		outfp = fp
+		outmol = mol
+		try: outsmi_id = i[options.idcol]
+		except IndexError:
+			outsmi_id = i[options.smicol]
+	except PreprocessViolation:
+		print ' SMILES preprocessing violation (line ' + str(idx+1) + ' will be removed): ' + i[options.smicol]
+		outfp = None
+		outmol = None
+		outsmi_id = None
+	except MolFromSmilesError:
+		print ' SMILES parse error (line ' + str(idx+1) + '): ' + i[options.smicol]
+		outfp = None
+		outmol = None
+		outsmi_id = None
 	return outfp, outmol, outsmi_id
 
 #import user smiles query
 def importQuerySmiles(in_file):
 	query = open(in_file).read().splitlines()
-	query = zip(range(len(query)),query)
-	matrix = np.empty((len(query), 2048), dtype=np.uint8)
-	num_chunks = min(len(query), options.ncores)
-	chunked_smiles = np.array_split(query, num_chunks)
-	pool = Pool(processes=num_chunks)  # set up resources
-	jobs = pool.imap(arrayFP, chunked_smiles)
-	current_end = 0
+	query = zip(range(len(query)), query)
+	chunksize = max(1, int(len(query) / (options.ncores)))
+	pool = Pool(processes=options.ncores)  # set up resources
+	jobs = pool.imap(arrayFP, query, chunksize)
+	matrix = []
 	processed_mol = []
 	processed_id = []
 	for i, result in enumerate(jobs):
-		percent = (float(i)/float(num_chunks))*100 + 1
+		percent = (float(i)/float(len(query)))*100 + 1
 		sys.stdout.write(' Processing molecules: %3d%%\r' % percent)
 		sys.stdout.flush()
-		matrix[current_end:current_end+len(result[0]), :] = result[0]
-		current_end += len(result[0])
-		processed_mol += result[1]
-		processed_id += result[2]
+		if result[0]:
+			matrix.append(result[0])
+			processed_mol.append(result[1])
+			processed_id.append(result[2])
 	pool.close()
 	pool.join()
 	sys.stdout.write(' Processing molecules: 100%')
-	print
-	return matrix[:current_end], processed_mol, processed_id
+	matrix = np.array(matrix)
+	return matrix, processed_mol, processed_id
 
 #preprocess exception to catch
 class SdfNoneMolError(Exception):
