@@ -13,52 +13,56 @@
 #for the [filtered] models using a reliability-density neighbourhood Applicability Domain
 #(AD) analysis from: doi.org/10.1186/s13321-016-0182-y
 
-#libraries
-import os
-from os import path
-import sys
+#standard libraries
 import bz2
-import zipfile
 import cPickle
+import csv
 import glob
-import time
 import math
-import numpy as np
-from rdkit import Chem
-from rdkit.Chem import AllChem
-from rdkit import DataStructs
-from rdkit.Chem import Descriptors
-from scipy.stats import percentileofscore
 import multiprocessing
+import os
+import sys
+import time
+import zipfile
 from multiprocessing import Pool
 from optparse import OptionParser
-import zipfile
+from os import path
+
+#third-party libraries
+import numpy as np
+import pandas as pd
+from rdkit import Chem
+from rdkit import DataStructs
+from rdkit.Chem import AllChem
+from rdkit.Chem import Descriptors
+from scipy.stats import percentileofscore
 
 #optionparser options
 parser = OptionParser()
-parser.add_option("-f", dest="inf", help="Input smiles or sdf file (required)", metavar="FILE")
-parser.add_option("-d", "--smiles_delim", default=' ', type=str, dest="delim", help="Input file (smiles) delimiter char (default: white space ' ')")
-parser.add_option("--smiles_column", default=0, type=int, dest="smicol", help="Input file (smiles) delimiter column (default: 0)")
-parser.add_option("--smiles_id_column", default=1, type=int, dest="idcol", help="Input file (smiles) ID column (default: 1)")
-parser.add_option("-o", dest="off", default=None, help="Optional output prediction file name", metavar="FILE")
-parser.add_option("-t", "--transpose", action="store_true", default=False, dest="transpose", help="Transpose output (rows are compounds, columns are targets)")
-parser.add_option("-n", "--ncores", default=1, type=int, dest="ncores", help="No. cores (default: 1)")
-parser.add_option("-b", "--bioactivity", default=None, type=str, dest="bioactivity", help="Bioactivity threshold (can use multiple split by ','. E.g. '100,10'")
-parser.add_option("-p", "--proba", default=None, type=float, dest="proba", help="RF probability threshold (default: None)")
-parser.add_option("--ad", default='90', type=str, dest="ad", help="Applicability Domain (AD) filter using percentile of weights [float]. Default: 90 (integer for percentile)")
-parser.add_option("--known_flag", action="store_true", default=False, dest="known", help="Set known activities (annotate duplicates betweem input to train with correct label)")
-parser.add_option("--orthologues", action="store_true", default=False, dest="ortho", help="Set to use orthologue bioactivity data in model generation")
-parser.add_option("--organism", dest="organism", default=None, type=str, help="Organism filter (multiple can be specified using commas ',')")
-parser.add_option("--target_class", dest="targetclass", default=None, type=str, help="Target classification filter")
-parser.add_option("--min_size", dest="minsize", default=10, type=int, help="Minimum number of actives used in model generation (default: 10)")
-parser.add_option("--performance_filter", default=None, type=str, dest="p_filt", help="Comma-seperated performance filtering using following nomenclature: validation_set[tsscv,l50so,l50po],metric[bedroc,roc,prauc,brier],performance_threshold[float]. E.g 'tsscv,bedroc,0.5'")
-parser.add_option("--se_filter", action="store_true", default=False, dest="se_filt", help="Optional setting to restrict to models which do not require Sphere Exclusion (SE)")
-parser.add_option("--training_log", action="store_true", default=False, dest="train_log", help="Optional setting to add training_details to the prediction file (large increase in output file size)")
-parser.add_option("--ntrees", dest="ntrees", default=None, type=int, help="Specify the minimum number of trees for warm-start random forest models (N.B Potential large latency/memory cost)")
-parser.add_option("--preprocess_off", dest="preproc", action="store_false", default=True, help="Turn off preprocessing using the flatkinson (eTox) standardizer (github.com/flatkinson/standardiser), size filter (100 >= Mw >= 1000 and organic mol check (C count >= 1)")
-parser.add_option("--std_dev", dest="std", action="store_true", default=False, help="Turn on matrix calculation for the standard deviation of prediction across the trees in the forest")
-parser.add_option("--percentile", dest="percentile", action="store_true", default=False, help="Turn on matrix calculation for the percentile of AD compounds")
-parser.add_option("--model_dir", dest="model_dir", default=None, type=str, help="Path to directory containing models, if not default")
+parser.add_option('-f', dest='inf', help='Input smiles or sdf file (required)', metavar='FILE')
+parser.add_option('-d', '--smiles_delim', default=' ', type=str, dest='delim', help='Input file (smiles) delimiter char (default: white space " ")')
+parser.add_option('--smiles_column', default=0, type=int, dest='smicol', help='Input file (smiles) delimiter column (default: 0)')
+parser.add_option('--smiles_id_column', default=1, type=int, dest='idcol', help='Input file (smiles) ID column (default: 1)')
+parser.add_option('-o', dest='off', default=None, help='Optional output prediction file name', metavar='FILE')
+parser.add_option('-t', '--transpose', action='store_true', default=False, dest='transpose', help='Transpose output (rows are compounds, columns are targets)')
+parser.add_option('-n', '--ncores', default=1, type=int, dest='ncores', help='No. cores (default: 1)')
+parser.add_option('-b', '--bioactivity', default=None, type=str, dest='bioactivity', help='Bioactivity threshold (can use multiple split by ",". E.g. "100,10"')
+parser.add_option('-p', '--proba', default=None, type=float, dest='proba', help='RF probability threshold (default: None)')
+parser.add_option('--ad', default='90', type=str, dest='ad', help='Applicability Domain (AD) filter using percentile of weights [float]. Default: 90 (integer for percentile)')
+parser.add_option('--known_flag', action='store_true', default=False, dest='known', help='Set known activities (annotate duplicates betweem input to train with correct label)')
+parser.add_option('--orthologues', action='store_true', default=False, dest='ortho', help='Set to use orthologue bioactivity data in model generation')
+parser.add_option('--organism', dest='organism', default=None, type=str, help='Organism filter (multiple can be specified using commas ",")')
+parser.add_option('--target_class', dest='targetclass', default=None, type=str, help='Target classification filter')
+parser.add_option('--min_size', dest='minsize', default=10, type=int, help='Minimum number of actives used in model generation (default: 10)')
+parser.add_option('--performance_filter', default=None, type=str, dest='p_filt', help='Comma-seperated performance filtering using following nomenclature: validation_set[tsscv,l50so,l50po],metric[bedroc,roc,prauc,brier],performance_threshold[float]. E.g "tsscv,bedroc,0.5"')
+parser.add_option('--se_filter', action='store_true', default=False, dest='se_filt', help='Optional setting to restrict to models which do not require Sphere Exclusion (SE)')
+parser.add_option('--training_log', action='store_true', default=False, dest='train_log', help='Optional setting to add training_details to the prediction file (large increase in output file size)')
+parser.add_option('--ntrees', dest='ntrees', default=None, type=int, help='Specify the minimum number of trees for warm-start random forest models (N.B Potential large latency/memory cost)')
+parser.add_option('--preprocess_off', dest='preproc', action='store_false', default=True, help='Turn off preprocessing using the flatkinson (eTox) standardizer (github.com/flatkinson/standardiser), size filter (100 >= Mw >= 1000 and organic mol check (C count >= 1)')
+parser.add_option('--std_dev', dest='std', action='store_true', default=False, help='Turn on matrix calculation for the standard deviation of prediction across the trees in the forest')
+parser.add_option('--percentile', dest='percentile', action='store_true', default=False, help='Turn on matrix calculation for the percentile of AD compounds')
+parser.add_option('--model_dir', dest='model_dir', default=None, type=str, help='Path to directory containing models, if not default')
+parser.add_option('--ad_smiles', action='store_true', default=False, dest='ad_smiles', help='Set to output SMILES of highest-weighted AD compound in percentile mode')
 
 (options, args) = parser.parse_args()
 #if tab delimited then set to \t
@@ -91,7 +95,7 @@ def check_set_working_env():
 	except ValueError:
 		print ' Input Error [--ad]: Percentile weight not integer between 0-100%. Please Check parameters'
 		sys.exit()
-        if options.model_dir:
+	if options.model_dir:
 		pidgin_dir = options.model_dir
 	else:
 		pidgin_dir = os.path.dirname(os.path.abspath(__file__))
@@ -190,46 +194,50 @@ def calcFingerprints(input,qtype='smiles'):
 
 #calculate fingerprints for chunked array of smiles
 def arrayFP(inp):
-	outfp = []
-	outmol = []
-	outsmi_id = []
-	for idx, i in inp:
-		i = i.split(options.delim)
-		try:
-			fp, mol = calcFingerprints(i[options.smicol])
-			outfp.append(fp)
-			outmol.append(mol)
-			try: outsmi_id.append(i[options.idcol])
-			except IndexError: outsmi_id.append(i[options.smicol])
-		except PreprocessViolation: print ' SMILES preprocessing violation (line ' + str(idx+1) + ' will be removed): ' + i[options.smicol]
-		except MolFromSmilesError: print ' SMILES parse error (line ' + str(idx+1) + '): ' + i[options.smicol]
+	idx, i = inp
+	i = i.split(options.delim)
+	try:
+		fp, mol = calcFingerprints(i[options.smicol])
+		outfp = fp
+		outmol = mol
+		try: outsmi_id = i[options.idcol]
+		except IndexError:
+			outsmi_id = i[options.smicol]
+	except PreprocessViolation:
+		print ' SMILES preprocessing violation (line ' + str(idx+1) + ' will be removed): ' + i[options.smicol]
+		outfp = None
+		outmol = None
+		outsmi_id = None
+	except MolFromSmilesError:
+		print ' SMILES parse error (line ' + str(idx+1) + '): ' + i[options.smicol]
+		outfp = None
+		outmol = None
+		outsmi_id = None
 	return outfp, outmol, outsmi_id
 
 #import user smiles query
 def importQuerySmiles(in_file):
 	query = open(in_file).read().splitlines()
-	query = zip(range(len(query)),query)
-	matrix = np.empty((len(query), 2048), dtype=np.uint8)
-	num_chunks = min(len(query), options.ncores)
-	chunked_smiles = np.array_split(query, num_chunks)
-	pool = Pool(processes=num_chunks)  # set up resources
-	jobs = pool.imap(arrayFP, chunked_smiles)
-	current_end = 0
+	query = zip(range(len(query)), query)
+	chunksize = max(1, int(len(query) / (options.ncores)))
+	pool = Pool(processes=options.ncores)  # set up resources
+	jobs = pool.imap(arrayFP, query, chunksize)
+	matrix = []
 	processed_mol = []
 	processed_id = []
 	for i, result in enumerate(jobs):
-		percent = (float(i)/float(num_chunks))*100 + 1
+		percent = (float(i)/float(len(query)))*100 + 1
 		sys.stdout.write(' Processing molecules: %3d%%\r' % percent)
 		sys.stdout.flush()
-		matrix[current_end:current_end+len(result[0]), :] = result[0]
-		current_end += len(result[0])
-		processed_mol += result[1]
-		processed_id += result[2]
+		if result[0]:
+			matrix.append(result[0])
+			processed_mol.append(result[1])
+			processed_id.append(result[2])
 	pool.close()
 	pool.join()
 	sys.stdout.write(' Processing molecules: 100%')
-	print
-	return matrix[:current_end], processed_mol, processed_id
+	matrix = np.array(matrix)
+	return matrix, processed_mol, processed_id
 
 #preprocess exception to catch
 class SdfNoneMolError(Exception):
@@ -247,7 +255,7 @@ def importQuerySDF(in_file):
 		try:
 			if not m: raise SdfNoneMolError('None mol')
 			smi, fp, mol = calcFingerprints(m,qtype='sdf')
-			try: outid.append(m.GetProp("_Name"))
+			try: outid.append(m.GetProp('_Name'))
 			except KeyError: outid.append(smi)
 			outfp.append(fp)
 			outmol.append(mol)
@@ -314,9 +322,30 @@ def doSimilarityWeightedAdAnalysis(model_name):
 # 		ret.append(max(percentiles))
 # 	return ret
 
+#get smiles from training set of model
+def get_training_smiles(model_name):
+	target_name = model_name.split('_')[0].replace('SE,', '').replace(',SE', '')
+	thresh = model_name.split('_')[-1]
+	zip_filename = (
+		mod_dir + 'bioactivity_dataset' + sep + target_name + '.smi.zip'
+	)
+	training_filename = target_name + '.smi'
+	with zipfile.ZipFile(zip_filename, 'r') as zip_file:
+		with zip_file.open(training_filename) as training_file:
+			training_data = pd.read_csv(training_file, sep='\t',
+										low_memory=False)
+	target_smiles = training_data['Smiles']
+	target_thresh_smiles = list(
+		target_smiles[-np.isnan(training_data[thresh + '_Flag'])]
+	)
+	return target_thresh_smiles
+
 #return percentile AD analysis for [similarity/(bias * std_dev] vs training data
 def doPercentileCalculation(model_name):
 	global rdkit_mols
+	#expensive to unzip training file - so only done if smiles requested
+	if options.ad_smiles:
+		smiles = get_training_smiles(model_name)
 	ad_data = getAdData(model_name)
 	def calcPercentile(rdkit_mol):
 		sims = DataStructs.BulkTanimotoSimilarity(rdkit_mol,ad_data[:,0])
@@ -326,13 +355,18 @@ def doPercentileCalculation(model_name):
 		weights = sims / (bias * std_dev)
 		critical_weight = weights.max()
 		percentile = percentileofscore(scores,critical_weight)
-		return percentile
+		if options.ad_smiles:
+			critical_smiles = smiles[np.argmax(weights)]
+			result = percentile, critical_smiles
+		else:
+			result = percentile, None
+		return result
 	ret = [calcPercentile(x) for x in rdkit_mols]
 	return model_name, ret
 
 #prediction runner for percentile calculation
 def performPercentileCalculation(models):
-	print " Starting percentile calculation..."
+	print ' Starting percentile calculation...'
 	input_len = len(models)
 	percentile_results = np.empty(input_len, dtype=object)
 	pool = Pool(processes=options.ncores)
@@ -347,7 +381,7 @@ def performPercentileCalculation(models):
 	pool.close()
 	pool.join()
 	sys.stdout.write(' Performing percentile calculation: ' + progress + ', 100%')
-	print "\n Percentile calculation completed!"
+	print '\n Percentile calculation completed!'
 	return percentile_results
 
 #calculate standard deviation for an input compound
@@ -386,7 +420,7 @@ def doTargetPrediction(model_name):
 
 #prediction runner for prediction or standard deviation calculation
 def performTargetPrediction(models):
-	print " Starting classification..."
+	print ' Starting classification...'
 	input_len = len(models)
 	prediction_results = []
 	pool = Pool(processes=options.ncores, initializer=initPool, initargs=(querymatrix,options.proba,))
@@ -401,49 +435,55 @@ def performTargetPrediction(models):
 	pool.close()
 	pool.join()
 	sys.stdout.write(' Performing classification on query molecules: ' + progress + ', 100%')
-	print "\n Classification completed!"
+	print '\n Classification completed!'
 	return prediction_results
 
-#write out normal results (rows are targets, columns are compounds)
-def writeOutResults(results):
+#write out results
+def writeOutResults(results, mode='predictions'):
 	global query_id, mid_uniprots, model_info, options
-	out_data = []
-	for mid, preds in results:
-		for uniprot_rows in mid_uniprots[mid]:
-			if options.train_log: out_data += [uniprot_rows + model_info[mid][1:] + list(preds)]
-			else: out_data += [uniprot_rows + list(preds)]
-	timestr = time.strftime("%Y%m%d-%H%M%S")
-	if not options.off: output_name = options.inf + '_out_predictions_' + timestr + '.txt'
-	else: output_name = options.off + '_out_predictions_' + timestr + '.txt'
-	print ' Writing predictions to file: ' + output_name
-	out_file = open(output_name, 'w')
-	header = 'Uniprot\tName\tGene_ID\tProtein_Classification\tOrganism' \
-	'\tPDB_IDs\tDisGeNET_0.06\tChEMBL_First_Publication\tActivity_Threshold' \
-	'\tActives\tOrthologue_Actives\tInactives\tOrthologue_Inactives' \
-	'\tSphere_Exclusion_Inactives\tRatio\tModel_ID\t'
-	if options.train_log: out_file.write(header + \
-	'\t'.join(map(str,model_info['MODEL_ID'][1:])) + '\t' + '\t'.join(map(str,query_id)) + '\n')
+	out_desc = ''
+	if options.transpose:
+		out_desc += 'transposed '
+	if mode == 'ad-percentiles':
+		out_desc += 'applicability domain percentiles '
+	elif mode == 'ad-smiles':
+		out_desc += 'applicability domain SMILES '
 	else:
-		out_file.write(header + '\t'.join(map(str,query_id)) + '\n')
-	for row in out_data: out_file.write('\t'.join(map(str,row)) + '\n')
-	out_file.close()
-	return
-
-#write out transposed results (columns are targets, rows are compounds)
-def writeOutTransposed(results):
-	global query_id, mid_uniprots, model_info, options
-	out_data = [['Uniprot'] + query_id]
-	for mid, preds in results:
-		for uniprot_rows in mid_uniprots[mid]:
-			out_data += [[uniprot_rows[0]] + list(preds)]
-	timestr = time.strftime("%Y%m%d-%H%M%S")
-	if not options.off: output_name = options.inf + '_out_predictions_' + timestr + '.txt'
-	else: output_name = options.off + '_out_predictions_' + timestr + '.txt'
-	print ' Writing out transposed predictions to file: ' + output_name
-	out_file = open(output_name, 'w')
-	out_data = np.transpose(out_data)
-	for row in out_data: out_file.write('\t'.join(map(str,row)) + '\n')
-	out_file.close()
+		out_desc += 'predictions '
+	if options.off: prefix = options.off
+	else: prefix = options.inf
+	timestr = time.strftime('%Y%m%d-%H%M%S')
+	output_name = prefix + '_out_' + mode + '_' + timestr + '.txt'
+	print ' Writing ' + out_desc + 'to file: ' + output_name
+	with open(output_name, 'wb') as out_file:
+		out_writer = csv.writer(out_file, delimiter='\t')
+		if options.transpose:
+			# rows are compounds, columns are targets (at a threshold)
+			out_data = [['Compound'] + query_id]
+			for mid, preds in results:
+				for uniprot_rows in mid_uniprots[mid]:
+					model_name = uniprot_rows[0] + "_" + uniprot_rows[8]
+					out_data += [[model_name] + list(preds)]
+			out_data = np.transpose(out_data)
+			for row in out_data: out_writer.writerow(row)
+		else:
+			# rows are targets (at a threshold), columns are compounds
+			out_data = []
+			for mid, preds in results:
+				for uniprot_rows in mid_uniprots[mid]:
+					if options.train_log: out_data += [uniprot_rows + model_info[mid][1:] + list(preds)]
+					else: out_data += [uniprot_rows + list(preds)]
+			header = ['Uniprot', 'Name', 'Gene_ID', 'Protein_Classification',
+						'Organism', 'PDB_IDs', 'DisGeNET_0.06',
+						'ChEMBL_First_Publication', 'Activity_Threshold',
+						'Actives', 'Orthologue_Actives', 'Inactives',
+						'Orthologue_Inactives', 'Sphere_Exclusion_Inactives',
+						'Ratio', 'Model_ID']
+			if options.train_log:
+				header.extend(model_info['MODEL_ID'][1:])
+			header.extend(query_id)
+			out_writer.writerow(header)
+			for row in out_data: out_writer.writerow(row)
 	return
 
 #nt (Windows) compatibility initializer for the pool
@@ -481,9 +521,15 @@ if __name__ == '__main__':
 	print ' Total number of query molecules: ' + str(len(querymatrix))
 	#perform target prediction on (filtered) models (using model ids)
 	if options.percentile:
-		prediction_results = performPercentileCalculation(mid_uniprots.keys())
+		results = performPercentileCalculation(mid_uniprots.keys())
 	else:
-		prediction_results = performTargetPrediction(mid_uniprots.keys())
+		results = performTargetPrediction(mid_uniprots.keys())
 	#write out
-	if options.transpose: writeOutTransposed(prediction_results)
-	else: writeOutResults(prediction_results)
+	if options.percentile:
+		percentile_results = [(mid, [cresult[0] for cresult in mresult]) for (mid, mresult) in results]
+		writeOutResults(percentile_results, 'ad-percentiles')
+		if options.ad_smiles:
+			smiles_results = [(mid, [cresult[1] for cresult in mresult]) for (mid, mresult) in results]
+			writeOutResults(smiles_results, 'ad-smiles')
+	else:
+		writeOutResults(results)
