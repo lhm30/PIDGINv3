@@ -12,8 +12,8 @@
 .. _version 2: https://github.com/lhm30/PIDGINv2
 .. _no_ortho.zip : https://tinyurl.com/no-ortho-zip
 .. _https://tinyurl.com/no-ortho : https://tinyurl.com/no-ortho-zip
-.. _ortho.zip : https://tinyurl.com/ortho-zip
-.. _ortho.z01 : https://tinyurl.com/ortho-z01
+.. _ortho.zip : https://universityofcambridgecloud-my.sharepoint.com/:u:/g/personal/lhm30_cam_ac_uk/EfapgV8syj1Hn0fv8we5wFABxKdCbETXt_zigDc0XkMI9g?e=tFwMr3
+.. _ortho.z01 : https://universityofcambridgecloud-my.sharepoint.com/:u:/g/personal/lhm30_cam_ac_uk/EYgEJPJy6StJlzsSHnH7EcQBW7MX2YzofI2oB785IVEJWQ?e=61L1gE
 .. _2048bit Rdkit Extended Connectivity FingerPrints: http://www.rdkit.org/docs/GettingStartedInPython.html#morgan-fingerprints-circular-fingerprints
 .. _NCBI BioSystems: https://www.ncbi.nlm.nih.gov/Structure/biosystems/docs/biosystems_about.html
 .. _DisGeNET: http://www.disgenet.org/web/DisGeNET/menu/dbinfo
