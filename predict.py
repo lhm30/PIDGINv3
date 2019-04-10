@@ -66,7 +66,7 @@ parser.add_option('--ad_smiles', action='store_true', default=False, dest='ad_sm
 
 (options, args) = parser.parse_args()
 #if tab delimited then set to \t
-if options.delim == 'tab': options.delimcol1 = '\t'
+if options.delim == 'tab': options.delim = '\t'
 
 def introMessage():
 	print '=============================================================================================='
@@ -307,20 +307,6 @@ def doSimilarityWeightedAdAnalysis(model_name):
 			#if compound is in AD and no need to check accross all comps for known then break
 			if k_flag == True and ad_flag == True: break
 	return ad_idx, np.array(known)
-
-#return percentile AD analysis for [similarity/(bias * std_dev] vs training data
-# def doPercentileSimilarityWeightedAdAnalysis(model_name):
-# 	global rdkit_mols,ad_settings
-# 	ret = []
-# 	ad_data = getAdData(model_name)
-# 	for mol_idx, m in enumerate(rdkit_mols):
-# 		percentiles = []
-# 		for training_instance in ad_data:
-# 			sim = DataStructs.TanimotoSimilarity(m,training_instance[0])
-# 			weight = sim/(training_instance[2]*training_instance[3])
-# 			percentiles.append(percentileofscore(ad_data[:,5],weight))
-# 		ret.append(max(percentiles))
-# 	return ret
 
 #get smiles from training set of model
 def get_training_smiles(model_name):
