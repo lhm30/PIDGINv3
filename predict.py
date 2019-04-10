@@ -1,3 +1,18 @@
+#Author : Lewis Mervin lhm30@cam.ac.uk
+#Supervisor : Dr. A. Bender
+#All rights reserved 2018
+#Protein Target Prediction using on SAR data from PubChem and ChEMBL_24
+#Molecular Descriptors : 2048bit circular Binary Fingerprints (Rdkit) - ECFP_4
+#Dependencies : rdkit, sklearn, standardiser
+
+### predict.py ###
+#Output a matrix of probabilities [computed as the mean predicted class probabilities of
+#the trees in the forest (where the class probability of a single tree is the fraction of
+#samples of the same class in a leaf)], or user-specified Random probability thresholds to
+#produce binary predictions for an input list of smiles/sdfs. Predictions are generated
+#for the [filtered] models using a reliability-density neighbourhood Applicability Domain
+#(AD) analysis from: doi.org/10.1186/s13321-016-0182-y
+
 #standard libraries
 import bz2
 import cPickle
@@ -50,7 +65,8 @@ parser.add_option('--model_dir', dest='model_dir', default=None, type=str, help=
 parser.add_option('--ad_smiles', action='store_true', default=False, dest='ad_smiles', help='Set to output SMILES of highest-weighted AD compound in percentile mode')
 
 (options, args) = parser.parse_args()
-if options.delim == 'tab': options.delim = '\t'
+#if tab delimited then set to \t
+if options.delim == 'tab': options.delimcol1 = '\t'
 
 def introMessage():
 	print '=============================================================================================='
