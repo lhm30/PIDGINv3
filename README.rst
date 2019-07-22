@@ -53,7 +53,7 @@ IMPORTANT
 *	If the SMILES input contains data additional to the SMILES string, the first entries after the SMILES are automatically interpreted as identifiers (see the `OpenSMILES specification <http://opensmiles.org/opensmiles.html>`_ §4.5) - although there are options to change this behaviour
 *	Molecules are automatically  standardized when running models (can be turned off)
 *	Do not modify the 'pkls', 'ad_data' etc. names or directories
-*	cytotox_library.csv and nontoxic_background.csv are included for testing purposes
+*	Files in the examples directory are included for testing as on the ReadtheDocs_ tutorials.
 *	For installation and usage instructions, see the `documentation <http://pidginv3.readthedocs.io>`_.
 
 
