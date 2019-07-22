@@ -12,3 +12,4 @@ ordered by expected frequency of use and increasing complexity.
    command
    started
    extended
+   enrichment

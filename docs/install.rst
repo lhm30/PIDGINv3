@@ -24,7 +24,7 @@ Follow these steps on Linux/OSX:
 
 1. ``Download and install Anaconda2 for Python 2.7 from https://www.continuum.io/downloads``
 
-2. Open terminal in Mac/Linux and run ``conda create -c keiserlab -c rdkit -c sdaxen --name pidgin3_env python=2.7 pip e3fp scikit-learn=0.19.0 pydot graphviz``
+2. Open terminal in Mac/Linux and run ``conda create -c rdkit --name pidgin3_env python=2.7 pip rdkit scikit-learn=0.19.0 pydot graphviz``
 
 * N.B. Rdkit may not import on some systems due to a bug. If this happens upgrade to the latest version of conda before creating the above environment using: ``conda update conda``
 
@@ -40,7 +40,6 @@ Follow these steps on Linux/OSX:
 
 * N.B Depending on bandwidth, Step 6/7 may take some time
 
-.. [1] |mervin2018|
 
 Filetree structure
 ~~~~~~~~~~~~~~~~~~
@@ -54,6 +53,8 @@ files are used:
 
 	$PV3 tree -L 2
 	.
+	├── biosystems.txt
+	├── DisGeNET_diseases.txt
 	├── docs
 	│   ├── conf.py
 	│   ├── dev
@@ -68,6 +69,7 @@ files are used:
 	│   ├── test2.smi
 	│   └── test.smi
 	├── LICENSE
+	├── nontoxic_background.csv
 	├── no_ortho
 	│   ├── ad_analysis
 	│   ├── bioactivity_dataset
@@ -75,14 +77,21 @@ files are used:
 	│   ├── training_log.txt
 	│   ├── training_results
 	│   └── uniprot_information.txt
+	├── no_ortho.zip
 	├── ortho
 	│   ├── ad_analysis
 	│   ├── bioactivity_dataset
+	│   ├── check_ad2.py
+	│   ├── check_ad.py
 	│   ├── pkls
 	│   ├── training_log.txt
 	│   ├── training_results
 	│   └── uniprot_information.txt
+	├── ortho.zip
+	├── predict_enriched.py
 	├── predict.py
 	└── README.rst
+
+.. [1] |mervin2018|
 
 .. include:: substitutions.rst

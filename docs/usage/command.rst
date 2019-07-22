@@ -192,7 +192,7 @@ input compounds, then the command line argument ``--percentile`` can be used.
 
 
 Annotating known activity in ChEMBL or PubChem (--known_flag)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Known actives from ChEMBL and the inactives used from PubChem (possibly only a subset due 
 to undersampling) can be annotated using the command:
