@@ -36,9 +36,9 @@
 .. _flatkinson standardiser: https://github.com/flatkinson/standardiser
 .. _models.zip: 
 .. |license| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
-   :target: https://github.com/lhm30/PIDGINv3/blob/master/LICENSE.txt
+   :target: https://github.com/lhm30/PIDGINv3/blob/master/LICENSE
 .. |license_long| replace:: `GNU Lesser General Public License version 3.0`_
-.. _GNU Lesser General Public License version 3.0: https://github.com/keiserlab/e3fp/blob/master/LICENSE.txt
+.. _GNU Lesser General Public License version 3.0: https://github.com/lhm30/PIDGINv3/blob/master/LICENSE
 .. _issue tracker: https://github.com/lhm30/PIDGINv3/issues
 .. _ReadTheDocs: http://pidginv3.readthedocs.io
 .. |betarelease| image:: https://zenodo.org/badge/142870938.svg

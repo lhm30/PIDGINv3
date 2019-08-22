@@ -136,7 +136,7 @@ The output has columns for the number of compound predictions (column
 ``[f1/f2]_[In]Actives_[probability_activity]``) and the associated percentage
 ``Percent_[f1/f2]_[In]Actives_[probability_activity]``) of compounds with that prediction.
 
-The Fishers or Chi-squared p-values are provided (``[Fishers_Test/Chisquared]_P_Value`` 
+The Fishers or Chi-squared p-values are provided (``[Fishers_Test/Chisquared]_P_Value``) 
 including the Benjamini & Hochberg corrected values in the column named 
 ``[Fishers_Test/Chisquared]_P_Value_Corrected``. The output should be filtered for a
 given preference.
