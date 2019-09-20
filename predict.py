@@ -291,21 +291,23 @@ def doSimilarityWeightedAdAnalysis(model_name):
 	ad_data = getAdData(model_name)
 	required_threshold = np.percentile(ad_data[:,5],ad_settings)
 	for mol_idx, m in enumerate(rdkit_mols):
-		ad_flag = False
-		#only check for known compounds if set in options (True means dont check)
-		if options.known: k_flag = False
-		else: k_flag = True
+		ad_flag = True
+		#only check for known compounds if set in options (True means check)
+		if options.known: k_flag = True
+		else: k_flag = False
 		for training_instance in ad_data:
 			sim = DataStructs.TanimotoSimilarity(m,training_instance[0])
-			if sim == 1.0 and k_flag == False:
+			#check if input=train & need to check input=train
+			if sim == 1.0 and k_flag == True:
 				known.append([mol_idx,training_instance[1]])
-				k_flag = True
+				k_flag = False
 			weight = sim/(training_instance[2]*training_instance[3])
-			if weight >= required_threshold and ad_flag != True:
+			#if comp in AD & no comp already in AD
+			if weight >= required_threshold and ad_flag == True:
 				ad_idx.append(mol_idx)
-				ad_flag = True
+				ad_flag = False
 			#if compound is in AD and no need to check accross all comps for known then break
-			if k_flag == True and ad_flag == True: break
+			if k_flag == False and ad_flag == False: break
 	return ad_idx, np.array(known)
 
 #get smiles from training set of model
