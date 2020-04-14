@@ -10,10 +10,8 @@
 .. _Scikit-learn: http://scikit-learn.org/
 .. _version 1: https://github.com/lhm30/PIDGIN
 .. _version 2: https://github.com/lhm30/PIDGINv2
-.. _no_ortho.zip : https://tinyurl.com/no-ortho-zip
-.. _https://tinyurl.com/no-ortho : https://tinyurl.com/no-ortho-zip
-.. _ortho.zip : https://universityofcambridgecloud-my.sharepoint.com/:u:/g/personal/lhm30_cam_ac_uk/EfapgV8syj1Hn0fv8we5wFABxKdCbETXt_zigDc0XkMI9g?e=rcxogX
-.. _ortho.z01 : https://universityofcambridgecloud-my.sharepoint.com/:u:/g/personal/lhm30_cam_ac_uk/EYgEJPJy6StJlzsSHnH7EcQBW7MX2YzofI2oB785IVEJWQ?e=Ythf0l
+.. _no_ortho.zip : https://drive.google.com/file/d/1D-iHmdRncTOImh68B54mEHkUvo5CHJVk/view
+.. _ortho.zip : https://drive.google.com/file/d/1CijRrJaAxIFcRWZHX314NYUPBTIwMPG7/view
 .. _2048bit Rdkit Extended Connectivity FingerPrints: http://www.rdkit.org/docs/GettingStartedInPython.html#morgan-fingerprints-circular-fingerprints
 .. _NCBI BioSystems: https://www.ncbi.nlm.nih.gov/Structure/biosystems/docs/biosystems_about.html
 .. _DisGeNET: http://www.disgenet.org/web/DisGeNET/menu/dbinfo
