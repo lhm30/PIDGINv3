@@ -3,7 +3,7 @@ Prediction IncluDinG INactivity (PIDGIN) Version 3
 
 |License| |docstatus| |betarelease|
 
-Author : Lewis Mervin, lhm30@cam.ac.uk
+Author : Lewis Mervin, lewis.mervin@cantab.net
 
 Supervisor : Dr. A. Bender
 
